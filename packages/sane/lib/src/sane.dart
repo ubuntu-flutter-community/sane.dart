@@ -6,6 +6,7 @@ import 'package:ffi/ffi.dart' as ffi;
 import 'package:sane/src/bindings.g.dart';
 import 'package:sane/src/dylib.dart';
 import 'package:sane/src/exceptions.dart';
+import 'package:sane/src/extensions.dart';
 import 'package:sane/src/structures.dart';
 import 'package:sane/src/type_conversion.dart';
 import 'package:sane/src/utils.dart';
