@@ -49,7 +49,7 @@ class Sane {
       final status = dylib.sane_init(versionCodePointer, nativeAuthCallback);
       print('sane_init() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       final versionCode = versionCodePointer.value;
       print('SANE version: ${SaneUtils.version(versionCodePointer.value)}');
@@ -90,7 +90,7 @@ class Sane {
       );
       print('sane_get_devices() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       final devices = <SaneDevice>[];
       for (var i = 0; deviceListPointer.value[i] != ffi.nullptr; i++) {
@@ -115,7 +115,7 @@ class Sane {
       final status = dylib.sane_open(deviceNamePointer, nativeHandlePointer);
       print('sane_open() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       final handle = SaneHandle(deviceName: deviceName);
       _nativeHandles.addAll({
@@ -230,7 +230,7 @@ class Sane {
           valuePointer = ffi.nullptr;
 
         case SaneOptionValueType.group:
-          throw SaneInvalidException();
+          throw SaneInvalidDataException();
       }
 
       if (action == SaneAction.setValue) {
@@ -266,7 +266,7 @@ class Sane {
 
           invalid:
           default:
-            throw SaneInvalidException();
+            throw SaneInvalidDataException();
         }
       }
 
@@ -279,7 +279,7 @@ class Sane {
       );
       print('sane_control_option($index, $action, $value) -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       final infos = saneOptionInfoFromNative(infoPointer.value);
       late final dynamic result;
@@ -305,7 +305,7 @@ class Sane {
           result = null;
 
         default:
-          throw SaneInvalidException();
+          throw SaneInvalidDataException();
       }
 
       ffi.calloc.free(valuePointer);
@@ -397,7 +397,7 @@ class Sane {
           _getNativeHandle(handle), nativeParametersPointer);
       print('sane_get_parameters() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       final parameters = saneParametersFromNative(nativeParametersPointer.ref);
 
@@ -416,7 +416,7 @@ class Sane {
       final status = dylib.sane_start(_getNativeHandle(handle));
       print('sane_start() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       completer.complete();
     });
@@ -439,7 +439,7 @@ class Sane {
       );
       print('sane_read() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       final bytes = Uint8List.fromList(
         List.generate(
@@ -480,37 +480,11 @@ class Sane {
       );
       print('sane_set_io_mode() -> ${status.name}');
 
-      _handleSaneStatus(status);
+      status.check();
 
       completer.complete();
     });
 
     return completer.future;
-  }
-
-  void _handleSaneStatus(SANE_Status status) {
-    switch (status) {
-      case SANE_Status.STATUS_UNSUPPORTED:
-        throw SaneUnsupportedException();
-      case SANE_Status.STATUS_CANCELLED:
-        throw SaneCancelledException();
-      case SANE_Status.STATUS_DEVICE_BUSY:
-        throw SaneDeviceBusyException();
-      case SANE_Status.STATUS_INVAL:
-        throw SaneInvalidException();
-      case SANE_Status.STATUS_JAMMED:
-        throw SaneJammedException();
-      case SANE_Status.STATUS_NO_DOCS:
-        throw SaneNoDocumentsException();
-      case SANE_Status.STATUS_COVER_OPEN:
-        throw SaneCoverOpenException();
-      case SANE_Status.STATUS_IO_ERROR:
-        throw SaneIOErrorException();
-      case SANE_Status.STATUS_NO_MEM:
-        throw SaneNoMemoryException();
-      case SANE_Status.STATUS_ACCESS_DENIED:
-        throw SaneAccessDeniedException();
-      default:
-    }
   }
 }
