@@ -1,5 +1,4 @@
 import 'package:ffi/ffi.dart';
-import 'package:meta/meta.dart';
 import 'package:sane/src/bindings.g.dart';
 import 'package:sane/src/dylib.dart';
 
@@ -188,15 +187,4 @@ final class SaneUnsupportedException extends SaneException {
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_UNSUPPORTED;
-}
-
-@internal
-extension SaneStatusExtension on SANE_Status {
-  /// Throws [SaneException] if the status is not [SANE_Status.STATUS_GOOD].
-  @pragma('vm:prefer-inline')
-  void check() {
-    if (this != SANE_Status.STATUS_GOOD) {
-      throw SaneException(this);
-    }
-  }
 }
