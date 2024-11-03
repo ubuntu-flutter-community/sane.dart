@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -10,7 +12,7 @@ void main(List<String> args) async {
   await sane.init();
 
   final devices = await sane.getDevices(localOnly: true);
-  for (var device in devices) {
+  for (final device in devices) {
     print('Device found: ${device.name}');
   }
 
@@ -18,7 +20,7 @@ void main(List<String> args) async {
 
   final optionDescriptors = await sane.getAllOptionDescriptors(handle);
 
-  for (var optionDescriptor in optionDescriptors) {
+  for (final optionDescriptor in optionDescriptors) {
     if (optionDescriptor.name == 'mode') {
       await sane.controlStringOption(
         handle: handle,
@@ -50,10 +52,10 @@ void main(List<String> args) async {
   sane.kill();
 
   Uint8List mergeUint8Lists(List<Uint8List> lists) {
-    int totalLength = lists.fold(0, (length, list) => length + list.length);
-    Uint8List result = Uint8List(totalLength);
-    int offset = 0;
-    for (var list in lists) {
+    final totalLength = lists.fold(0, (length, list) => length + list.length);
+    final result = Uint8List(totalLength);
+    var offset = 0;
+    for (final list in lists) {
       result.setRange(offset, offset + list.length, list);
       offset += list.length;
     }
@@ -63,7 +65,7 @@ void main(List<String> args) async {
 
   final file = File('./output.ppm');
   file.writeAsStringSync(
-    "P6\n${parameters.pixelsPerLine} ${parameters.lines}\n255\n",
+    'P6\n${parameters.pixelsPerLine} ${parameters.lines}\n255\n',
     mode: FileMode.write,
   );
   final rawPixelData = mergeUint8Lists(rawPixelDataList);

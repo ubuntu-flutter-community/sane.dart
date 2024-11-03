@@ -4,5 +4,5 @@ import 'package:sane/src/bindings.g.dart';
 
 LibSane? _dylib;
 LibSane get dylib {
-  return _dylib ??= LibSane(ffi.DynamicLibrary.open("libsane.so"));
+  return _dylib ??= LibSane(ffi.DynamicLibrary.open('libsane.so'));
 }

@@ -16,12 +16,12 @@ class SaneIsolate implements Sane {
   Future<void> spawn() async {
     final receivePort = ReceivePort();
     _isolate = await Isolate.spawn(
-        _isolateEntryPoint,
-        _IsolateEntryPointArgs(
-          mainSendPort: receivePort.sendPort,
-          sane: _sane,
-        ));
-    print('Spawn SaneIsolate');
+      _isolateEntryPoint,
+      _IsolateEntryPointArgs(
+        mainSendPort: receivePort.sendPort,
+        sane: _sane,
+      ),
+    );
     _sendPort = await receivePort.first as SendPort;
   }
 
@@ -311,7 +311,8 @@ class _SaneMessageHandler {
   final Sane _sane;
 
   Future<_SaneIsolateResponse> handleMessage(
-      _SaneIsolateMessage message) async {
+    _SaneIsolateMessage message,
+  ) async {
     switch (message) {
       case _SaneInitMessage _:
         return await _handleSaneInitMessage();
@@ -319,49 +320,49 @@ class _SaneMessageHandler {
       case _SaneExitMessage _:
         return await _handleSaneExitMessage();
 
-      case _SaneGetDevicesMessage message:
+      case final _SaneGetDevicesMessage message:
         return await _handleSaneGetDevicesMessages(message);
 
-      case _SaneOpenMessage message:
+      case final _SaneOpenMessage message:
         return await _handleSaneOpenMessage(message);
 
-      case _SaneCloseMessage message:
+      case final _SaneCloseMessage message:
         return await _handleSaneCloseMessage(message);
 
-      case _SaneGetOptionDescriptorMessage message:
+      case final _SaneGetOptionDescriptorMessage message:
         return await _handleSaneGetOptionDescriptorMessage(message);
 
-      case _SaneGetAllOptionDescriptorsMessage message:
+      case final _SaneGetAllOptionDescriptorsMessage message:
         return await _handleSaneGetAllOptionDescriptorsMessage(message);
 
-      case _SaneControlOptionMessage<bool> message:
+      case final _SaneControlOptionMessage<bool> message:
         return await _handleSaneControlBoolOptionMessage(message);
 
-      case _SaneControlOptionMessage<int> message:
+      case final _SaneControlOptionMessage<int> message:
         return await _handleSaneControlIntOptionMessage(message);
 
-      case _SaneControlOptionMessage<double> message:
+      case final _SaneControlOptionMessage<double> message:
         return await _handleSaneControlFixedOptionMessage(message);
 
-      case _SaneControlOptionMessage<String> message:
+      case final _SaneControlOptionMessage<String> message:
         return await _handleSaneControlStringOptionMessage(message);
 
-      case _SaneControlButtonOptionMessage message:
+      case final _SaneControlButtonOptionMessage message:
         return await _handleSaneControlButtonOptionMessage(message);
 
-      case _SaneGetParametersMessage message:
+      case final _SaneGetParametersMessage message:
         return await _handleSaneGetParametersMessage(message);
 
-      case _SaneStartMessage message:
+      case final _SaneStartMessage message:
         return await _handleSaneStartMessage(message);
 
-      case _SaneReadMessage message:
+      case final _SaneReadMessage message:
         return await _handleSaneReadMessage(message);
 
-      case _SaneCancelMessage message:
+      case final _SaneCancelMessage message:
         return await _handleSaneCancelMessage(message);
 
-      case _SaneSetIOModeMessage message:
+      case final _SaneSetIOModeMessage message:
         return await _handleSaneSetIOModeMessage(message);
 
       default:

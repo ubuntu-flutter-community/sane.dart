@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 class SaneCredentials {
   SaneCredentials({
     required this.username,
@@ -22,12 +24,14 @@ class SaneDevice {
   final String type;
 }
 
+@immutable
 class SaneHandle {
-  SaneHandle({required this.deviceName});
+  const SaneHandle({required this.deviceName});
   final String deviceName;
 
   @override
-  operator ==(other) => other is SaneHandle && other.deviceName == deviceName;
+  bool operator ==(Object other) =>
+      other is SaneHandle && other.deviceName == deviceName;
 
   @override
   int get hashCode => deviceName.hashCode;

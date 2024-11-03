@@ -1,5 +1,4 @@
 import 'package:ffi/ffi.dart';
-import 'package:meta/meta.dart';
 import 'package:sane/src/bindings.g.dart';
 import 'package:sane/src/dylib.dart';
 
@@ -19,34 +18,32 @@ import 'package:sane/src/dylib.dart';
 /// - [SaneNoMemoryException]
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
 sealed class SaneException implements Exception {
-  SANE_Status get _status;
-
-  const SaneException._();
-
   factory SaneException(SANE_Status status) {
     final exception = switch (status) {
-      SANE_Status.STATUS_GOOD =>
-      throw ArgumentError(
-        'Cannot create SaneException with status STATUS_GOOD',
-        'status',
-      ),
-      SANE_Status.STATUS_UNSUPPORTED => SaneUnsupportedException(),
-      SANE_Status.STATUS_CANCELLED => SaneCancelledException(),
-      SANE_Status.STATUS_DEVICE_BUSY => SaneDeviceBusyException(),
-      SANE_Status.STATUS_INVAL => SaneInvalidDataException(),
-      SANE_Status.STATUS_EOF => SaneEofException(),
-      SANE_Status.STATUS_JAMMED => SaneJammedException(),
-      SANE_Status.STATUS_NO_DOCS => SaneNoDocumentsException(),
-      SANE_Status.STATUS_COVER_OPEN => SaneCoverOpenException(),
-      SANE_Status.STATUS_IO_ERROR => SaneIoException(),
-      SANE_Status.STATUS_NO_MEM => SaneNoMemoryException(),
-      SANE_Status.STATUS_ACCESS_DENIED => SaneAccessDeniedException(),
+      SANE_Status.STATUS_GOOD => throw ArgumentError(
+          'Cannot create SaneException with status STATUS_GOOD',
+          'status',
+        ),
+      SANE_Status.STATUS_UNSUPPORTED => const SaneUnsupportedException(),
+      SANE_Status.STATUS_CANCELLED => const SaneCancelledException(),
+      SANE_Status.STATUS_DEVICE_BUSY => const SaneDeviceBusyException(),
+      SANE_Status.STATUS_INVAL => const SaneInvalidDataException(),
+      SANE_Status.STATUS_EOF => const SaneEofException(),
+      SANE_Status.STATUS_JAMMED => const SaneJammedException(),
+      SANE_Status.STATUS_NO_DOCS => const SaneNoDocumentsException(),
+      SANE_Status.STATUS_COVER_OPEN => const SaneCoverOpenException(),
+      SANE_Status.STATUS_IO_ERROR => const SaneIoException(),
+      SANE_Status.STATUS_NO_MEM => const SaneNoMemoryException(),
+      SANE_Status.STATUS_ACCESS_DENIED => const SaneAccessDeniedException(),
     };
 
     assert(exception._status == status);
 
     return exception;
   }
+
+  const SaneException._();
+  SANE_Status get _status;
 
   String get message {
     return dylib.sane_strstatus(_status).cast<Utf8>().toDartString();
@@ -188,15 +185,4 @@ final class SaneUnsupportedException extends SaneException {
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_UNSUPPORTED;
-}
-
-@internal
-extension SaneStatusExtension on SANE_Status {
-  /// Throws [SaneException] if the status is not [SANE_Status.STATUS_GOOD].
-  @pragma('vm:prefer-inline')
-  void check() {
-    if (this != SANE_Status.STATUS_GOOD) {
-      throw SaneException(this);
-    }
-  }
 }
