@@ -1,8 +1,8 @@
 import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
-import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/structures.dart';
+import 'package:sane/src/bindings.g.dart';
+import 'package:sane/src/structures.dart';
 
 SaneDevice saneDeviceFromNative(SANE_Device device) {
   return SaneDevice(

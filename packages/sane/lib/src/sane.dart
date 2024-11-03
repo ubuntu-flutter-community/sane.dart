@@ -3,16 +3,16 @@ import 'dart:ffi' as ffi;
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart' as ffi;
-import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/dylib.dart';
-import 'package:libsane/src/exceptions.dart';
-import 'package:libsane/src/structures.dart';
-import 'package:libsane/src/type_conversion.dart';
-import 'package:libsane/src/utils.dart';
+import 'package:sane/src/bindings.g.dart';
+import 'package:sane/src/dylib.dart';
+import 'package:sane/src/exceptions.dart';
+import 'package:sane/src/structures.dart';
+import 'package:sane/src/type_conversion.dart';
+import 'package:sane/src/utils.dart';
 
 typedef AuthCallback = SaneCredentials Function(String resourceName);
 
-class LibSane {
+class Sane {
   final Map<SaneHandle, SANE_Handle> _nativeHandles = {};
   SANE_Handle _getNativeHandle(SaneHandle handle) => _nativeHandles[handle]!;
 

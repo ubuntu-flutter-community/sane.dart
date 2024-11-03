@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:libsane/libsane.dart';
+import 'package:sane/sane.dart';
 
 void main(List<String> args) async {
-  final sane = LibSaneIsolate(sane: LibSane());
+  final sane = SaneIsolate(sane: Sane());
   await sane.spawn();
 
   await sane.init();

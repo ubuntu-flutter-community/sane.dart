@@ -1,6 +1,6 @@
 import 'dart:ffi' as ffi;
 
-import 'package:libsane/src/bindings.g.dart';
+import 'package:sane/src/bindings.g.dart';
 
 LibSane? _dylib;
 LibSane get dylib {

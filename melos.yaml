@@ -1,0 +1,4 @@
+name: sane_workspace
+
+packages:
+  - packages/**

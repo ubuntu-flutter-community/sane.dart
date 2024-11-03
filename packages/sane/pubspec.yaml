@@ -1,0 +1,29 @@
+name: sane
+description: Dart bindings for the SANE library
+version: 0.1.0
+repository: https://github.com/ubuntu-flutter-community/sane.dart
+
+platforms:
+  linux:
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  ffi: ^2.1.3
+
+dev_dependencies:
+  ffigen: ^14.0.1
+  lints: ^4.0.0
+  test: ^1.24.0
+
+ffigen:
+  name: "LibSane"
+  output: "lib/src/bindings.g.dart"
+  headers:
+    entry-points:
+      - "/usr/include/sane/sane.h"
+  enums:
+    member-rename:
+      ".*":
+        "SANE_(.*)": "$1"

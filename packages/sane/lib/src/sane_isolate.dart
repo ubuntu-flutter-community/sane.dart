@@ -1,14 +1,14 @@
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:libsane/libsane.dart';
+import 'package:sane/sane.dart';
 
-class LibSaneIsolate implements LibSane {
-  LibSaneIsolate({
-    required LibSane sane,
+class SaneIsolate implements Sane {
+  SaneIsolate({
+    required Sane sane,
   }) : _sane = sane;
 
-  final LibSane _sane;
+  final Sane _sane;
 
   late final Isolate _isolate;
   late final SendPort _sendPort;
@@ -274,7 +274,7 @@ class _IsolateEntryPointArgs {
     required this.sane,
   });
   final SendPort mainSendPort;
-  final LibSane sane;
+  final Sane sane;
 }
 
 void _isolateEntryPoint(_IsolateEntryPointArgs args) {
@@ -306,9 +306,9 @@ class _IsolateMessageEnveloppe {
 }
 
 class _SaneMessageHandler {
-  _SaneMessageHandler({required LibSane sane}) : _sane = sane;
+  _SaneMessageHandler({required Sane sane}) : _sane = sane;
 
-  final LibSane _sane;
+  final Sane _sane;
 
   Future<_SaneIsolateResponse> handleMessage(
       _SaneIsolateMessage message) async {
