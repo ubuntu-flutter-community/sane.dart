@@ -1,10 +1,16 @@
+import 'package:sane/sane.dart';
 import 'package:sane/src/isolate_messages/interface.dart';
-import 'package:sane/src/structures.dart';
 
 class CloseMessage implements IsolateMessage {
-  CloseMessage({required this.handle});
+  CloseMessage({required this.saneHandle});
 
-  final SaneHandle handle;
+  final SaneHandle saneHandle;
+
+  @override
+  Future<CloseResponse> handle(Sane sane) async {
+    await sane.close(saneHandle);
+    return CloseResponse();
+  }
 }
 
 class CloseResponse implements IsolateResponse {}
