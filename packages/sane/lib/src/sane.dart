@@ -14,8 +14,13 @@ import 'package:sane/src/utils.dart';
 typedef AuthCallback = SaneCredentials Function(String resourceName);
 
 class Sane {
+  static Sane? _instance;
+  bool _exited = false;
   final Map<SaneHandle, SANE_Handle> _nativeHandles = {};
+
   SANE_Handle _getNativeHandle(SaneHandle handle) => _nativeHandles[handle]!;
+
+  Sane._();
 
   Future<int> init({
     AuthCallback? authCallback,
@@ -64,14 +69,20 @@ class Sane {
     return completer.future;
   }
 
+  factory Sane() => _instance ??= Sane._();
+
   Future<void> exit() {
     final completer = Completer<void>();
 
     Future(() {
+      _exited = true;
+
       dylib.sane_exit();
       print('sane_exit()');
 
       completer.complete();
+
+      _instance = null;
     });
 
     return completer.future;
@@ -80,6 +91,8 @@ class Sane {
   Future<List<SaneDevice>> getDevices({
     required bool localOnly,
   }) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<List<SaneDevice>>();
 
     Future(() {
@@ -108,6 +121,8 @@ class Sane {
   }
 
   Future<SaneHandle> open(String deviceName) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<SaneHandle>();
 
     Future(() {
@@ -133,10 +148,14 @@ class Sane {
   }
 
   Future<SaneHandle> openDevice(SaneDevice device) {
+    if (_exited) throw StateError('SANE has been exited');
+
     return open(device.name);
   }
 
   Future<void> close(SaneHandle handle) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<void>();
 
     Future(() {
@@ -154,6 +173,8 @@ class Sane {
     SaneHandle handle,
     int index,
   ) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<SaneOptionDescriptor>();
 
     Future(() {
@@ -175,6 +196,8 @@ class Sane {
   Future<List<SaneOptionDescriptor>> getAllOptionDescriptors(
     SaneHandle handle,
   ) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<List<SaneOptionDescriptor>>();
 
     Future(() {
@@ -201,6 +224,8 @@ class Sane {
     required SaneAction action,
     T? value,
   }) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<SaneOptionResult<T>>();
 
     Future(() {
@@ -393,6 +418,8 @@ class Sane {
   }
 
   Future<SaneParameters> getParameters(SaneHandle handle) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<SaneParameters>();
 
     Future(() {
@@ -416,6 +443,8 @@ class Sane {
   }
 
   Future<void> start(SaneHandle handle) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<void>();
 
     Future(() {
@@ -431,6 +460,8 @@ class Sane {
   }
 
   Future<Uint8List> read(SaneHandle handle, int bufferSize) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<Uint8List>();
 
     Future(() {
@@ -464,6 +495,8 @@ class Sane {
   }
 
   Future<void> cancel(SaneHandle handle) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<void>();
 
     Future(() {
@@ -477,6 +510,8 @@ class Sane {
   }
 
   Future<void> setIOMode(SaneHandle handle, SaneIOMode mode) {
+    if (_exited) throw StateError('SANE has been exited');
+
     final completer = Completer<void>();
 
     Future(() {
