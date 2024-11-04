@@ -14,10 +14,10 @@ import 'package:sane/src/utils.dart';
 typedef AuthCallback = SaneCredentials Function(String resourceName);
 
 class Sane {
-
   factory Sane() => _instance ??= Sane._();
 
   Sane._();
+
   static Sane? _instance;
   bool _exited = false;
   final Map<SaneHandle, SANE_Handle> _nativeHandles = {};
