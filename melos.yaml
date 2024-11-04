@@ -4,4 +4,9 @@ packages:
   - packages/**
 
 scripts:
-  format-check: melos exec dart format . --set-exit-if-changed
+  format-check:
+    run: melos exec dart format . --set-exit-if-changed
+    description: "Run dart format in all packages"
+  test:
+    run: melos exec dart test .
+    description: "Run dart test in all packages"
