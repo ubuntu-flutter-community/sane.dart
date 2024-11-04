@@ -186,3 +186,8 @@ final class SaneUnsupportedException extends SaneException {
   @override
   SANE_Status get _status => SANE_Status.STATUS_UNSUPPORTED;
 }
+
+/// SANE has been exited or the device has been closed.
+final class SaneDisposedError extends StateError {
+  SaneDisposedError() : super('SANE has been exited');
+}
