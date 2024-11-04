@@ -6,14 +6,18 @@ import 'dart:typed_data';
 import 'package:sane/sane.dart';
 
 void main(List<String> args) async {
-  final sane = SaneIsolate(sane: Sane());
+  final sane = SaneIsolate(sane: SaneDev());
   await sane.spawn();
 
   await sane.init();
 
-  final devices = await sane.getDevices(localOnly: true);
+  final devices = await sane.getDevices(localOnly: false);
   for (final device in devices) {
     print('Device found: ${device.name}');
+  }
+  if (devices.isEmpty) {
+    print('No device found');
+    return;
   }
 
   final handle = await sane.openDevice(devices.first);
