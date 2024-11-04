@@ -14,13 +14,15 @@ import 'package:sane/src/utils.dart';
 typedef AuthCallback = SaneCredentials Function(String resourceName);
 
 class Sane {
+
+  factory Sane() => _instance ??= Sane._();
+
+  Sane._();
   static Sane? _instance;
   bool _exited = false;
   final Map<SaneHandle, SANE_Handle> _nativeHandles = {};
 
   SANE_Handle _getNativeHandle(SaneHandle handle) => _nativeHandles[handle]!;
-
-  Sane._();
 
   Future<int> init({
     AuthCallback? authCallback,
@@ -68,8 +70,6 @@ class Sane {
 
     return completer.future;
   }
-
-  factory Sane() => _instance ??= Sane._();
 
   Future<void> exit() {
     final completer = Completer<void>();
