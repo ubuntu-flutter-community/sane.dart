@@ -1,7 +1,9 @@
+import 'package:sane/src/sane.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Void group of tests', () {
-    test('Void test', () {});
+  test('Sane init test', () {
+    final sane = Sane();
+    expect(sane.init, returnsNormally);
   });
 }

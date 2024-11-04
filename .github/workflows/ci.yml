@@ -35,5 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
+      - run: sudo apt update
+      - run: sudo apt install -y libsane-dev
+        env:
+          DEBIAN_FRONTEND: noninteractive
       - uses: bluefireteam/melos-action@v3
       - run: melos run test
