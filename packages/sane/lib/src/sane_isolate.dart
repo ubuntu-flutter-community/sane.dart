@@ -59,7 +59,10 @@ class SaneIsolate implements Sane {
     replyPort.close();
 
     if (response is ExceptionResponse) {
-      throw response.exception;
+      Error.throwWithStackTrace(
+        response.exception,
+        response.stackTrace,
+      );
     }
 
     return response;
@@ -308,8 +311,11 @@ void _isolateEntryPoint(_IsolateEntryPointArgs args) {
     late IsolateResponse response;
     try {
       response = await envellope.message.handle(sane);
-    } on SaneException catch (e) {
-      response = ExceptionResponse(exception: e);
+    } on SaneException catch (exception, stackTrace) {
+      response = ExceptionResponse(
+        exception: exception,
+        stackTrace: stackTrace,
+      );
     }
 
     envellope.replyPort.send(response);
