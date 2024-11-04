@@ -321,7 +321,8 @@ class MessageHandler {
 
   final Sane _sane;
 
-  Future<IsolateResponse> handleMessage(IsolateMessage message,
+  Future<IsolateResponse> handleMessage(
+    IsolateMessage message,
   ) async {
     switch (message) {
       case InitMessage _:

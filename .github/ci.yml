@@ -9,11 +9,8 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  FLUTTER_VERSION: 3.24.3
-
 jobs:
-  analyze-latest:
+  analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
