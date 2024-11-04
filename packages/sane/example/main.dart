@@ -1,11 +1,15 @@
-// ignore_for_file: avoid_print
-
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
 
 void main(List<String> args) async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
   final sane = SaneIsolate(sane: SaneDev());
   await sane.spawn();
 

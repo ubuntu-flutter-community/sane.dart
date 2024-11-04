@@ -7,6 +7,7 @@ import 'package:sane/src/bindings.g.dart';
 import 'package:sane/src/dylib.dart';
 import 'package:sane/src/exceptions.dart';
 import 'package:sane/src/extensions.dart';
+import 'package:sane/src/logger.dart';
 import 'package:sane/src/structures.dart';
 import 'package:sane/src/type_conversion.dart';
 import 'package:sane/src/utils.dart';
@@ -57,12 +58,13 @@ class Sane {
             ).nativeFunction
           : ffi.nullptr;
       final status = dylib.sane_init(versionCodePointer, nativeAuthCallback);
-      print('sane_init() -> ${status.name}');
+      logger.finest('sane_init() -> ${status.name}');
 
       status.check();
 
       final versionCode = versionCodePointer.value;
-      print('SANE version: ${SaneUtils.version(versionCodePointer.value)}');
+      logger.finest(
+          'SANE version: ${SaneUtils.version(versionCodePointer.value)}');
 
       ffi.calloc.free(versionCodePointer);
       ffi.calloc.free(nativeAuthCallback);
@@ -82,7 +84,7 @@ class Sane {
       _exited = true;
 
       dylib.sane_exit();
-      print('sane_exit()');
+      logger.finest('sane_exit()');
 
       completer.complete();
 
@@ -106,7 +108,8 @@ class Sane {
         deviceListPointer,
         saneBoolFromDartBool(localOnly),
       );
-      print('sane_get_devices() -> ${status.name}');
+
+      logger.finest('sane_get_devices() -> ${status.name}');
 
       status.check();
 
@@ -133,7 +136,7 @@ class Sane {
       final nativeHandlePointer = ffi.calloc<SANE_Handle>();
       final deviceNamePointer = saneStringFromDartString(deviceName);
       final status = dylib.sane_open(deviceNamePointer, nativeHandlePointer);
-      print('sane_open() -> ${status.name}');
+      logger.finest('sane_open() -> ${status.name}');
 
       status.check();
 
@@ -165,7 +168,7 @@ class Sane {
     Future(() {
       dylib.sane_close(_getNativeHandle(handle));
       _nativeHandles.remove(handle);
-      print('sane_close()');
+      logger.finest('sane_close()');
 
       completer.complete();
     });
@@ -307,7 +310,8 @@ class Sane {
         valuePointer.cast<ffi.Void>(),
         infoPointer,
       );
-      print('sane_control_option($index, $action, $value) -> ${status.name}');
+      logger.finest(
+          'sane_control_option($index, $action, $value) -> ${status.name}');
 
       status.check();
 
@@ -432,7 +436,7 @@ class Sane {
         _getNativeHandle(handle),
         nativeParametersPointer,
       );
-      print('sane_get_parameters() -> ${status.name}');
+      logger.finest('sane_get_parameters() -> ${status.name}');
 
       status.check();
 
@@ -453,7 +457,7 @@ class Sane {
 
     Future(() {
       final status = dylib.sane_start(_getNativeHandle(handle));
-      print('sane_start() -> ${status.name}');
+      logger.finest('sane_start() -> ${status.name}');
 
       status.check();
 
@@ -478,7 +482,7 @@ class Sane {
         bufferSize,
         bytesReadPointer,
       );
-      print('sane_read() -> ${status.name}');
+      logger.finest('sane_read() -> ${status.name}');
 
       status.check();
 
@@ -505,7 +509,7 @@ class Sane {
 
     Future(() {
       dylib.sane_cancel(_getNativeHandle(handle));
-      print('sane_cancel()');
+      logger.finest('sane_cancel()');
 
       completer.complete();
     });
@@ -523,7 +527,7 @@ class Sane {
         _getNativeHandle(handle),
         saneBoolFromIOMode(mode),
       );
-      print('sane_set_io_mode() -> ${status.name}');
+      logger.finest('sane_set_io_mode() -> ${status.name}');
 
       status.check();
 

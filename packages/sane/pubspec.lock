@@ -175,7 +175,7 @@ packages:
     source: hosted
     version: "4.0.0"
   logging:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: logging
       sha256: c8245ada5f1717ed44271ed1c26b8ce85ca3228fd2ffdb75468ab01979309d61
@@ -199,7 +199,7 @@ packages:
     source: hosted
     version: "0.12.16+1"
   meta:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: meta
       sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
