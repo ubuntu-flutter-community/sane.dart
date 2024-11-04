@@ -27,6 +27,8 @@ class Sane {
   Future<int> init({
     AuthCallback? authCallback,
   }) {
+    _checkIfExited();
+
     final completer = Completer<int>();
 
     void authCallbackAdapter(
@@ -72,6 +74,8 @@ class Sane {
   }
 
   Future<void> exit() {
+    if (_exited) return Future.value();
+
     final completer = Completer<void>();
 
     Future(() {
