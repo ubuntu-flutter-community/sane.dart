@@ -106,7 +106,7 @@ class SaneIsolate implements Sane {
   Future<void> close(SaneHandle handle) async {
     await _sendMessage(
       CloseMessage(
-        handle: handle,
+        saneHandle: handle,
       ),
     );
   }
@@ -118,7 +118,7 @@ class SaneIsolate implements Sane {
   ) async {
     final response = await _sendMessage(
       GetOptionDescriptorMessage(
-        handle: handle,
+        saneHandle: handle,
         index: index,
       ),
     ) as GetOptionDescriptorResponse;
@@ -132,7 +132,7 @@ class SaneIsolate implements Sane {
   ) async {
     final response = await _sendMessage(
       GetAllOptionDescriptorsMessage(
-        handle: handle,
+        saneHandle: handle,
       ),
     ) as GetAllOptionDescriptorsResponse;
 
@@ -147,13 +147,13 @@ class SaneIsolate implements Sane {
     bool? value,
   }) async {
     final response = await _sendMessage(
-      ControlOptionMessage<bool>(
-        handle: handle,
+      ControlValueOptionMessage<bool>(
+        saneHandle: handle,
         index: index,
         action: action,
         value: value,
       ),
-    ) as ControlOptionResponse<bool>;
+    ) as ControlValueOptionResponse<bool>;
 
     return response.result;
   }
@@ -166,13 +166,13 @@ class SaneIsolate implements Sane {
     int? value,
   }) async {
     final response = await _sendMessage(
-      ControlOptionMessage<int>(
-        handle: handle,
+      ControlValueOptionMessage<int>(
+        saneHandle: handle,
         index: index,
         action: action,
         value: value,
       ),
-    ) as ControlOptionResponse<int>;
+    ) as ControlValueOptionResponse<int>;
 
     return response.result;
   }
@@ -185,13 +185,13 @@ class SaneIsolate implements Sane {
     double? value,
   }) async {
     final response = await _sendMessage(
-      ControlOptionMessage<double>(
-        handle: handle,
+      ControlValueOptionMessage<double>(
+        saneHandle: handle,
         index: index,
         action: action,
         value: value,
       ),
-    ) as ControlOptionResponse<double>;
+    ) as ControlValueOptionResponse<double>;
 
     return response.result;
   }
@@ -204,13 +204,13 @@ class SaneIsolate implements Sane {
     String? value,
   }) async {
     final response = await _sendMessage(
-      ControlOptionMessage<String>(
-        handle: handle,
+      ControlValueOptionMessage<String>(
+        saneHandle: handle,
         index: index,
         action: action,
         value: value,
       ),
-    ) as ControlOptionResponse<String>;
+    ) as ControlValueOptionResponse<String>;
 
     return response.result;
   }
@@ -222,7 +222,7 @@ class SaneIsolate implements Sane {
   }) async {
     final response = await _sendMessage(
       ControlButtonOptionMessage(
-        handle: handle,
+        saneHandle: handle,
         index: index,
       ),
     ) as ControlButtonOptionResponse;
@@ -234,7 +234,7 @@ class SaneIsolate implements Sane {
   Future<SaneParameters> getParameters(SaneHandle handle) async {
     final response = await _sendMessage(
       GetParametersMessage(
-        handle: handle,
+        saneHandle: handle,
       ),
     ) as GetParametersResponse;
 
@@ -245,7 +245,7 @@ class SaneIsolate implements Sane {
   Future<void> start(SaneHandle handle) async {
     await _sendMessage(
       StartMessage(
-        handle: handle,
+        saneHandle: handle,
       ),
     );
   }
@@ -254,7 +254,7 @@ class SaneIsolate implements Sane {
   Future<Uint8List> read(SaneHandle handle, int bufferSize) async {
     final response = await _sendMessage(
       ReadMessage(
-        handle: handle,
+        saneHandle: handle,
         bufferSize: bufferSize,
       ),
     ) as ReadResponse;
@@ -266,7 +266,7 @@ class SaneIsolate implements Sane {
   Future<void> cancel(SaneHandle handle) async {
     await _sendMessage(
       CancelMessage(
-        handle: handle,
+        saneHandle: handle,
       ),
     );
   }
@@ -277,7 +277,7 @@ class SaneIsolate implements Sane {
     SaneIOMode ioMode,
   ) async {
     await _sendMessage(
-      SetIOModeMessage(handle: handle, ioMode: ioMode),
+      SetIOModeMessage(saneHandle: handle, ioMode: ioMode),
     );
   }
 }
@@ -296,12 +296,12 @@ void _isolateEntryPoint(_IsolateEntryPointArgs args) {
   final isolateReceivePort = ReceivePort();
   args.mainSendPort.send(isolateReceivePort.sendPort);
 
-  final messageHandler = MessageHandler(sane: args.sane);
+  final sane = args.sane;
   isolateReceivePort.listen((envellope) async {
     envellope = envellope as _IsolateMessageEnveloppe;
 
     envellope.replyPort.send(
-      await messageHandler.handleMessage(envellope.message),
+      await envellope.message.handle(sane),
     );
   });
 }
@@ -314,238 +314,4 @@ class _IsolateMessageEnveloppe {
 
   final SendPort replyPort;
   final IsolateMessage message;
-}
-
-class MessageHandler {
-  MessageHandler({required Sane sane}) : _sane = sane;
-
-  final Sane _sane;
-
-  Future<IsolateResponse> handleMessage(
-    IsolateMessage message,
-  ) async {
-    switch (message) {
-      case InitMessage _:
-        return await _handleSaneInitMessage();
-
-      case ExitMessage _:
-        return await _handleSaneExitMessage();
-
-      case final GetDevicesMessage message:
-        return await _handleSaneGetDevicesMessages(message);
-
-      case final OpenMessage message:
-        return await _handleSaneOpenMessage(message);
-
-      case final CloseMessage message:
-        return await _handleSaneCloseMessage(message);
-
-      case final GetOptionDescriptorMessage message:
-        return await _handleSaneGetOptionDescriptorMessage(message);
-
-      case final GetAllOptionDescriptorsMessage message:
-        return await _handleSaneGetAllOptionDescriptorsMessage(message);
-
-      case final ControlOptionMessage<bool> message:
-        return await _handleSaneControlBoolOptionMessage(message);
-
-      case final ControlOptionMessage<int> message:
-        return await _handleSaneControlIntOptionMessage(message);
-
-      case final ControlOptionMessage<double> message:
-        return await _handleSaneControlFixedOptionMessage(message);
-
-      case final ControlOptionMessage<String> message:
-        return await _handleSaneControlStringOptionMessage(message);
-
-      case final ControlButtonOptionMessage message:
-        return await _handleSaneControlButtonOptionMessage(message);
-
-      case final GetParametersMessage message:
-        return await _handleSaneGetParametersMessage(message);
-
-      case final StartMessage message:
-        return await _handleSaneStartMessage(message);
-
-      case final ReadMessage message:
-        return await _handleSaneReadMessage(message);
-
-      case final CancelMessage message:
-        return await _handleSaneCancelMessage(message);
-
-      case final SetIOModeMessage message:
-        return await _handleSaneSetIOModeMessage(message);
-
-      default:
-        throw Exception('No handler for this message.');
-    }
-  }
-
-  Future<InitResponse> _handleSaneInitMessage() async {
-    return InitResponse(
-      versionCode: await _sane.init(),
-    );
-  }
-
-  Future<ExitResponse> _handleSaneExitMessage() async {
-    await _sane.exit();
-    return ExitResponse();
-  }
-
-  Future<GetDevicesResponse> _handleSaneGetDevicesMessages(
-    GetDevicesMessage message,
-  ) async {
-    return GetDevicesResponse(
-      devices: await _sane.getDevices(
-        localOnly: message.localOnly,
-      ),
-    );
-  }
-
-  Future<OpenResponse> _handleSaneOpenMessage(
-    OpenMessage message,
-  ) async {
-    return OpenResponse(
-      handle: await _sane.open(
-        message.deviceName,
-      ),
-    );
-  }
-
-  Future<CloseResponse> _handleSaneCloseMessage(
-    CloseMessage message,
-  ) async {
-    await _sane.close(message.handle);
-    return CloseResponse();
-  }
-
-  Future<GetOptionDescriptorResponse> _handleSaneGetOptionDescriptorMessage(
-    GetOptionDescriptorMessage message,
-  ) async {
-    return GetOptionDescriptorResponse(
-      optionDescriptor: await _sane.getOptionDescriptor(
-        message.handle,
-        message.index,
-      ),
-    );
-  }
-
-  Future<GetAllOptionDescriptorsResponse>
-      _handleSaneGetAllOptionDescriptorsMessage(
-    GetAllOptionDescriptorsMessage message,
-  ) async {
-    return GetAllOptionDescriptorsResponse(
-      optionDescriptors: await _sane.getAllOptionDescriptors(
-        message.handle,
-      ),
-    );
-  }
-
-  Future<ControlOptionResponse<bool>> _handleSaneControlBoolOptionMessage(
-    ControlOptionMessage<bool> message,
-  ) async {
-    return ControlOptionResponse<bool>(
-      result: await _sane.controlBoolOption(
-        handle: message.handle,
-        index: message.index,
-        action: message.action,
-        value: message.value,
-      ),
-    );
-  }
-
-  Future<ControlOptionResponse<int>> _handleSaneControlIntOptionMessage(
-    ControlOptionMessage<int> message,
-  ) async {
-    return ControlOptionResponse<int>(
-      result: await _sane.controlIntOption(
-        handle: message.handle,
-        index: message.index,
-        action: message.action,
-        value: message.value,
-      ),
-    );
-  }
-
-  Future<ControlOptionResponse<double>> _handleSaneControlFixedOptionMessage(
-    ControlOptionMessage<double> message,
-  ) async {
-    return ControlOptionResponse<double>(
-      result: await _sane.controlFixedOption(
-        handle: message.handle,
-        index: message.index,
-        action: message.action,
-        value: message.value,
-      ),
-    );
-  }
-
-  Future<ControlOptionResponse<String>> _handleSaneControlStringOptionMessage(
-    ControlOptionMessage<String> message,
-  ) async {
-    return ControlOptionResponse<String>(
-      result: await _sane.controlStringOption(
-        handle: message.handle,
-        index: message.index,
-        action: message.action,
-        value: message.value,
-      ),
-    );
-  }
-
-  Future<ControlButtonOptionResponse> _handleSaneControlButtonOptionMessage(
-    ControlButtonOptionMessage message,
-  ) async {
-    return ControlButtonOptionResponse(
-      result: await _sane.controlButtonOption(
-        handle: message.handle,
-        index: message.index,
-      ),
-    );
-  }
-
-  Future<GetParametersResponse> _handleSaneGetParametersMessage(
-    GetParametersMessage message,
-  ) async {
-    return GetParametersResponse(
-      parameters: await _sane.getParameters(
-        message.handle,
-      ),
-    );
-  }
-
-  Future<StartResponse> _handleSaneStartMessage(
-    StartMessage message,
-  ) async {
-    await _sane.start(message.handle);
-    return StartResponse();
-  }
-
-  Future<ReadResponse> _handleSaneReadMessage(
-    ReadMessage message,
-  ) async {
-    return ReadResponse(
-      bytes: await _sane.read(
-        message.handle,
-        message.bufferSize,
-      ),
-    );
-  }
-
-  Future<CancelResponse> _handleSaneCancelMessage(
-    CancelMessage message,
-  ) async {
-    await _sane.cancel(message.handle);
-    return CancelResponse();
-  }
-
-  Future<SetIOModeResponse> _handleSaneSetIOModeMessage(
-    SetIOModeMessage message,
-  ) async {
-    await _sane.setIOMode(
-      message.handle,
-      message.ioMode,
-    );
-    return SetIOModeResponse();
-  }
 }

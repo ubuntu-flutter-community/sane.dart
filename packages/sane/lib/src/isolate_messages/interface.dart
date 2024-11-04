@@ -1,3 +1,7 @@
-interface class IsolateMessage {}
+import 'package:sane/src/sane.dart';
 
-interface class IsolateResponse {}
+abstract interface class IsolateMessage {
+  Future<IsolateResponse> handle(Sane sane);
+}
+
+abstract interface class IsolateResponse {}
