@@ -6,6 +6,7 @@ import 'package:sane/src/isolate_messages/cancel.dart';
 import 'package:sane/src/isolate_messages/close.dart';
 import 'package:sane/src/isolate_messages/control_button_option.dart';
 import 'package:sane/src/isolate_messages/control_option.dart';
+import 'package:sane/src/isolate_messages/exception.dart';
 import 'package:sane/src/isolate_messages/exit.dart';
 import 'package:sane/src/isolate_messages/get_all_option_descriptors.dart';
 import 'package:sane/src/isolate_messages/get_devices.dart';
@@ -56,6 +57,13 @@ class SaneIsolate implements Sane {
 
     final response = await replyPort.first;
     replyPort.close();
+
+    if (response is ExceptionResponse) {
+      Error.throwWithStackTrace(
+        response.exception,
+        response.stackTrace,
+      );
+    }
 
     return response;
   }
@@ -300,9 +308,17 @@ void _isolateEntryPoint(_IsolateEntryPointArgs args) {
   isolateReceivePort.listen((envellope) async {
     envellope = envellope as _IsolateMessageEnveloppe;
 
-    envellope.replyPort.send(
-      await envellope.message.handle(sane),
-    );
+    late IsolateResponse response;
+    try {
+      response = await envellope.message.handle(sane);
+    } on SaneException catch (exception, stackTrace) {
+      response = ExceptionResponse(
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    envellope.replyPort.send(response);
   });
 }
 
