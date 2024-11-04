@@ -64,7 +64,8 @@ class Sane {
 
       final versionCode = versionCodePointer.value;
       logger.finest(
-          'SANE version: ${SaneUtils.version(versionCodePointer.value)}');
+        'SANE version: ${SaneUtils.version(versionCodePointer.value)}',
+      );
 
       ffi.calloc.free(versionCodePointer);
       ffi.calloc.free(nativeAuthCallback);
@@ -311,7 +312,8 @@ class Sane {
         infoPointer,
       );
       logger.finest(
-          'sane_control_option($index, $action, $value) -> ${status.name}');
+        'sane_control_option($index, $action, $value) -> ${status.name}',
+      );
 
       status.check();
 
