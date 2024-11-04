@@ -18,7 +18,10 @@ void main() {
   });
 
   test('throws upon use', () {
-    expect(() => sane.getDevices(localOnly: true), throwsStateError);
+    expect(
+      () => sane.getDevices(localOnly: true),
+      throwsA(isA<SaneDisposedError>()),
+    );
   });
 
   test('can reinstiate with new instance', () {
