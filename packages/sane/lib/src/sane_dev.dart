@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
 
-final _logger = Logger('sane.sane_dev');
+final _logger = Logger('sane.dev');
 
 class SaneDev implements Sane {
   @override
