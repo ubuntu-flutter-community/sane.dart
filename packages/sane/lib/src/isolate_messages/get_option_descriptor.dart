@@ -2,7 +2,8 @@ import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
-class GetOptionDescriptorMessage implements IsolateMessage {
+class GetOptionDescriptorMessage
+    implements IsolateMessage<GetOptionDescriptorResponse> {
   GetOptionDescriptorMessage({
     required this.saneHandle,
     required this.index,

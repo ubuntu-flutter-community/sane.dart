@@ -2,7 +2,7 @@ import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
-class OpenMessage implements IsolateMessage {
+class OpenMessage implements IsolateMessage<OpenResponse> {
   OpenMessage({required this.deviceName});
 
   final String deviceName;

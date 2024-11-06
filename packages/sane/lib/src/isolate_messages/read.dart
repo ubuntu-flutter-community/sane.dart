@@ -4,7 +4,7 @@ import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
-class ReadMessage implements IsolateMessage {
+class ReadMessage implements IsolateMessage<ReadResponse> {
   ReadMessage({
     required this.saneHandle,
     required this.bufferSize,

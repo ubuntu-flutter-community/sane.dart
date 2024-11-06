@@ -2,7 +2,7 @@ import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
-class GetDevicesMessage implements IsolateMessage {
+class GetDevicesMessage implements IsolateMessage<GetDevicesResponse> {
   GetDevicesMessage({required this.localOnly});
 
   final bool localOnly;

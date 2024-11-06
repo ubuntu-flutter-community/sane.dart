@@ -2,7 +2,8 @@ import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
-class ControlValueOptionMessage<T> implements IsolateMessage {
+class ControlValueOptionMessage<T>
+    implements IsolateMessage<ControlValueOptionResponse<T>> {
   ControlValueOptionMessage({
     required this.saneHandle,
     required this.index,
@@ -16,7 +17,7 @@ class ControlValueOptionMessage<T> implements IsolateMessage {
   final T? value;
 
   @override
-  Future<ControlValueOptionResponse> handle(Sane sane) async {
+  Future<ControlValueOptionResponse<T>> handle(Sane sane) async {
     switch (value) {
       case final bool value:
         return ControlValueOptionResponse<bool>(
@@ -26,7 +27,7 @@ class ControlValueOptionMessage<T> implements IsolateMessage {
             action: action,
             value: value,
           ),
-        );
+        ) as ControlValueOptionResponse<T>;
       case final int value:
         return ControlValueOptionResponse<int>(
           result: await sane.controlIntOption(
@@ -35,7 +36,7 @@ class ControlValueOptionMessage<T> implements IsolateMessage {
             action: action,
             value: value,
           ),
-        );
+        ) as ControlValueOptionResponse<T>;
       case final double value:
         return ControlValueOptionResponse<double>(
           result: await sane.controlFixedOption(
@@ -44,7 +45,7 @@ class ControlValueOptionMessage<T> implements IsolateMessage {
             action: action,
             value: value,
           ),
-        );
+        ) as ControlValueOptionResponse<T>;
       case final String value:
         return ControlValueOptionResponse<String>(
           result: await sane.controlStringOption(
@@ -53,7 +54,7 @@ class ControlValueOptionMessage<T> implements IsolateMessage {
             action: action,
             value: value,
           ),
-        );
+        ) as ControlValueOptionResponse<T>;
       default:
         throw Exception('Invalid value type.');
     }

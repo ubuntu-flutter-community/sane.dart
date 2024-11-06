@@ -2,7 +2,8 @@ import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
-class ControlButtonOptionMessage implements IsolateMessage {
+class ControlButtonOptionMessage
+    implements IsolateMessage<ControlButtonOptionResponse> {
   ControlButtonOptionMessage({
     required this.saneHandle,
     required this.index,
