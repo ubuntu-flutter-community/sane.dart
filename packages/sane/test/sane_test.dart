@@ -1,4 +1,4 @@
-import 'package:sane/src/sane.dart';
+import 'package:sane/src/sane_sync.dart';
 import 'package:test/test.dart';
 
 void main() {

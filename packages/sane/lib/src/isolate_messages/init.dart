@@ -1,5 +1,5 @@
 import 'package:sane/src/isolate_messages/interface.dart';
-import 'package:sane/src/sane.dart';
+import 'package:sane/src/sane_sync.dart';
 
 class InitMessage implements IsolateMessage<InitResponse> {
   @override
