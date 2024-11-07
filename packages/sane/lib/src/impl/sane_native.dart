@@ -19,8 +19,8 @@ import 'package:sane/src/isolate_messages/read.dart';
 import 'package:sane/src/isolate_messages/set_io_mode.dart';
 import 'package:sane/src/isolate_messages/start.dart';
 
-class SaneIsolate implements Sane {
-  SaneIsolate({
+class SaneNative implements Sane {
+  SaneNative({
     required Sane sane,
   }) : _sane = sane;
 
