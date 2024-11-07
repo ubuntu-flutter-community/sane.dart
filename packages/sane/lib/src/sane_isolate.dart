@@ -21,7 +21,8 @@ import 'package:sane/src/isolate_messages/open.dart';
 import 'package:sane/src/isolate_messages/read.dart';
 import 'package:sane/src/isolate_messages/set_io_mode.dart';
 import 'package:sane/src/isolate_messages/start.dart';
-import 'package:sane/src/logger.dart';
+
+final _logger = Logger('sane.isolate');
 
 class SaneIsolate implements Sane {
   SaneIsolate({
@@ -48,7 +49,7 @@ class SaneIsolate implements Sane {
       if (message is _SendPortMessage) {
         sendPortCompleter.complete(message.sendPort);
       } else if (message is _LogRecordMessage) {
-        logger.redirect(message.record);
+        _logger.redirect(message.record);
       }
     });
     _sendPort = await sendPortCompleter.future;
