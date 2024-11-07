@@ -1,10 +1,10 @@
-import 'package:sane/src/impl/sane_sync.dart';
 import 'package:sane/src/isolate_messages/interface.dart';
+import 'package:sane/src/sane.dart';
 
 class ExitMessage implements IsolateMessage {
   @override
   Future<ExitResponse> handle(Sane sane) async {
-    await sane.exit();
+    sane.dispose();
     return ExitResponse();
   }
 }

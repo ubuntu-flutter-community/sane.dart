@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 class SaneCredentials {
   SaneCredentials({
     required this.username,
@@ -8,33 +6,6 @@ class SaneCredentials {
 
   final String username;
   final String password;
-}
-
-class SaneDevice {
-  SaneDevice({
-    required this.name,
-    required this.vendor,
-    required this.model,
-    required this.type,
-  });
-
-  final String name;
-  final String vendor;
-  final String model;
-  final String type;
-}
-
-@immutable
-class SaneHandle {
-  const SaneHandle({required this.deviceName});
-  final String deviceName;
-
-  @override
-  bool operator ==(Object other) =>
-      other is SaneHandle && other.deviceName == deviceName;
-
-  @override
-  int get hashCode => deviceName.hashCode;
 }
 
 enum SaneFrameFormat {
@@ -169,9 +140,4 @@ class SaneOptionResult<T> {
 
   final T result;
   final List<SaneOptionInfo> infos;
-}
-
-enum SaneIOMode {
-  nonBlocking,
-  blocking;
 }

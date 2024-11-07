@@ -1,22 +1,23 @@
-import 'package:sane/src/impl/sane_sync.dart';
+import 'package:sane/src/isolate.dart';
 import 'package:sane/src/isolate_messages/interface.dart';
+import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
 class GetOptionDescriptorMessage
     implements IsolateMessage<GetOptionDescriptorResponse> {
   GetOptionDescriptorMessage({
-    required this.saneHandle,
+    required this.deviceName,
     required this.index,
   });
 
-  final SaneHandle saneHandle;
+  final String deviceName;
   final int index;
 
   @override
   Future<GetOptionDescriptorResponse> handle(Sane sane) async {
-    return GetOptionDescriptorResponse(
-      optionDescriptor: await sane.getOptionDescriptor(saneHandle, index),
-    );
+    final device = getDevice(deviceName);
+    final optionDescriptor = await device.getOptionDescriptor(index);
+    return GetOptionDescriptorResponse(optionDescriptor: optionDescriptor);
   }
 }
 

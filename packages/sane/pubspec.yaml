@@ -25,6 +25,10 @@ ffigen:
   headers:
     entry-points:
       - "/usr/include/sane/sane.h"
+  functions:
+    symbol-address:
+      include:
+        - sane_close
   enums:
     member-rename:
       ".*":

@@ -14,7 +14,7 @@ void main() {
   });
 
   test('can exit', () {
-    expect(sane.exit, returnsNormally);
+    expect(sane.dispose, returnsNormally);
   });
 
   test('throws upon use', () {

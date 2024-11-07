@@ -5,6 +5,8 @@ import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
+import 'package:sane/src/impl/sane_dev.dart';
+import 'package:sane/src/impl/sane_native.dart';
 
 void main(List<String> args) async {
   Logger.root.level = Level.ALL;
@@ -12,10 +14,11 @@ void main(List<String> args) async {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  final sane = SaneNative(sane: SaneDev());
-  await sane.spawn();
+  final sane = NativeSane(MockSane());
 
-  await sane.init();
+  final version = await sane.initialize();
+
+  print(version);
 
   final devices = await sane.getDevices(localOnly: false);
   for (final device in devices) {
@@ -26,40 +29,36 @@ void main(List<String> args) async {
     return;
   }
 
-  final handle = await sane.openDevice(devices.first);
+  final device = devices.first;
 
-  final optionDescriptors = await sane.getAllOptionDescriptors(handle);
+  final optionDescriptors = await device.getAllOptionDescriptors();
 
   for (final optionDescriptor in optionDescriptors) {
     if (optionDescriptor.name == 'mode') {
-      await sane.controlStringOption(
-        handle: handle,
-        index: optionDescriptor.index,
-        action: SaneAction.setValue,
-        value: 'Color',
+      await device.controlStringOption(
+        optionDescriptor.index,
+        SaneAction.setValue,
+        'Color',
       );
       break;
     }
   }
 
-  await sane.start(handle);
+  await device.start();
 
-  final parameters = await sane.getParameters(handle);
+  final parameters = await device.getParameters();
   print('Parameters: format(${parameters.format}), depth(${parameters.depth})');
 
   final rawPixelDataList = <Uint8List>[];
   Uint8List? bytes;
   while (true) {
-    bytes = await sane.read(handle, parameters.bytesPerLine);
+    bytes = await device.read(bufferSize: parameters.bytesPerLine);
     if (bytes.isEmpty) break;
     rawPixelDataList.add(bytes);
   }
 
-  await sane.cancel(handle);
-  await sane.close(handle);
-  await sane.exit();
-
-  sane.kill();
+  await device.cancel();
+  await device.close();
 
   Uint8List mergeUint8Lists(List<Uint8List> lists) {
     final totalLength = lists.fold(0, (length, list) => length + list.length);

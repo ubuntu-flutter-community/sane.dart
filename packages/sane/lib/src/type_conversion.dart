@@ -1,18 +1,11 @@
 import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
+import 'package:meta/meta.dart';
 import 'package:sane/src/bindings.g.dart';
 import 'package:sane/src/structures.dart';
 
-SaneDevice saneDeviceFromNative(SANE_Device device) {
-  return SaneDevice(
-    name: dartStringFromSaneString(device.name) ?? '',
-    vendor: dartStringFromSaneString(device.vendor) ?? '',
-    model: dartStringFromSaneString(device.model) ?? '',
-    type: dartStringFromSaneString(device.type) ?? '',
-  );
-}
-
+@internal
 SaneFrameFormat saneFrameFormatFromNative(SANE_Frame frame) {
   return switch (frame) {
     SANE_Frame.FRAME_GRAY => SaneFrameFormat.gray,
@@ -23,6 +16,7 @@ SaneFrameFormat saneFrameFormatFromNative(SANE_Frame frame) {
   };
 }
 
+@internal
 SaneParameters saneParametersFromNative(SANE_Parameters parameters) {
   return SaneParameters(
     format: saneFrameFormatFromNative(parameters.format),
@@ -34,6 +28,7 @@ SaneParameters saneParametersFromNative(SANE_Parameters parameters) {
   );
 }
 
+@internal
 SaneOptionValueType saneOptionValueTypeFromNative(SANE_Value_Type valueType) {
   return switch (valueType) {
     SANE_Value_Type.TYPE_BOOL => SaneOptionValueType.bool,
@@ -45,6 +40,7 @@ SaneOptionValueType saneOptionValueTypeFromNative(SANE_Value_Type valueType) {
   };
 }
 
+@internal
 SaneOptionUnit saneOptionUnitFromNative(SANE_Unit unit) {
   return switch (unit) {
     SANE_Unit.UNIT_NONE => SaneOptionUnit.none,
@@ -57,6 +53,7 @@ SaneOptionUnit saneOptionUnitFromNative(SANE_Unit unit) {
   };
 }
 
+@internal
 SANE_Action nativeSaneActionFromDart(SaneAction action) {
   return switch (action) {
     SaneAction.getValue => SANE_Action.ACTION_GET_VALUE,
@@ -65,6 +62,7 @@ SANE_Action nativeSaneActionFromDart(SaneAction action) {
   };
 }
 
+@internal
 List<SaneOptionCapability> saneOptionCapabilityFromBitmap(int bitset) {
   final capabilities = <SaneOptionCapability>[];
 
@@ -93,6 +91,7 @@ List<SaneOptionCapability> saneOptionCapabilityFromBitmap(int bitset) {
   return capabilities;
 }
 
+@internal
 SaneOptionConstraint? saneConstraintFromNative(
   UnnamedUnion1 constraint,
   SANE_Constraint_Type constraintType,
@@ -150,6 +149,7 @@ SaneOptionConstraint? saneConstraintFromNative(
   }
 }
 
+@internal
 SaneOptionDescriptor saneOptionDescriptorFromNative(
   SANE_Option_Descriptor optionDescriptor,
   int index,
@@ -171,6 +171,7 @@ SaneOptionDescriptor saneOptionDescriptorFromNative(
   );
 }
 
+@internal
 List<SaneOptionInfo> saneOptionInfoFromNative(int bitset) {
   final infos = <SaneOptionInfo>[];
   if (bitset & SANE_INFO_INEXACT != 0) {
@@ -185,13 +186,7 @@ List<SaneOptionInfo> saneOptionInfoFromNative(int bitset) {
   return infos;
 }
 
-DartSANE_Word saneBoolFromIOMode(SaneIOMode mode) {
-  return switch (mode) {
-    SaneIOMode.blocking => SANE_FALSE,
-    SaneIOMode.nonBlocking => SANE_TRUE,
-  };
-}
-
+@internal
 bool dartBoolFromSaneBool(int bool) {
   switch (bool) {
     case 0:
@@ -203,25 +198,40 @@ bool dartBoolFromSaneBool(int bool) {
   }
 }
 
-DartSANE_Word saneBoolFromDartBool(bool bool) {
-  return bool ? SANE_TRUE : SANE_FALSE;
-}
-
+@internal
 String? dartStringFromSaneString(SANE_String_Const stringPointer) {
   if (stringPointer == ffi.nullptr) return null;
   return stringPointer.cast<ffi.Utf8>().toDartString();
 }
 
+@Deprecated('Use extension')
 SANE_String_Const saneStringFromDartString(String string) {
-  return string.toNativeUtf8().cast<SANE_Char>();
+  return string.toSaneString();
+}
+
+@internal
+extension SaneStringExtensions on SANE_String_Const {
+  String toDartString() => cast<ffi.Utf8>().toDartString();
+}
+
+@internal
+extension StringExtensions on String {
+  SANE_String_Const toSaneString() => toNativeUtf8().cast<SANE_Char>();
+}
+
+@internal
+extension BoolExtensions on bool {
+  DartSANE_Word get asSaneBool => this ? SANE_TRUE : SANE_FALSE;
 }
 
 const int _saneFixedScaleFactor = 1 << SANE_FIXED_SCALE_SHIFT;
 
+@internal
 double saneFixedToDouble(int saneFixed) {
   return saneFixed / _saneFixedScaleFactor;
 }
 
+@internal
 int doubleToSaneFixed(double double) {
   return (double * _saneFixedScaleFactor).toInt();
 }

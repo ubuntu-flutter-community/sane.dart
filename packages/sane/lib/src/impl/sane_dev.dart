@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
@@ -5,98 +6,113 @@ import 'package:sane/sane.dart';
 
 final _logger = Logger('sane.dev');
 
-class SaneDev implements Sane {
+class MockSane implements Sane {
   @override
-  Future<void> cancel(SaneHandle handle) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_cancel()');
-    });
+  void dispose() => _logger.finest('disposed');
+
+  @override
+  Future<List<SaneDevDevice>> getDevices({required bool localOnly}) {
+    _logger.finest('sane_get_devices()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => List.generate(3, SaneDevDevice.new),
+    );
   }
 
   @override
-  Future<void> close(SaneHandle handle) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_close()');
-    });
+  SaneVersion initialize([AuthCallback? authCallback]) {
+    _logger.finest('initialized');
+    return const SaneVersion.fromCode(13371337);
+  }
+}
+
+class SaneDevDevice implements SaneDevice {
+  const SaneDevDevice(this.index);
+
+  final int index;
+
+  @override
+  Future<void> cancel() {
+    _logger.finest('sane_cancel()');
+    return Future.delayed(const Duration(seconds: 1));
   }
 
   @override
-  Future<SaneOptionResult<bool>> controlBoolOption({
-    required SaneHandle handle,
-    required int index,
-    required SaneAction action,
-    bool? value,
-  }) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_controlBoolOption()');
-      return SaneOptionResult(result: value ?? true, infos: []);
-    });
+  Future<void> close() {
+    _logger.finest('sane_close()');
+    return Future.delayed(const Duration(seconds: 1));
   }
 
   @override
-  Future<SaneOptionResult<Null>> controlButtonOption({
-    required SaneHandle handle,
-    required int index,
-  }) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_controlButtonOption()');
-      return SaneOptionResult(result: null, infos: []);
-    });
+  String get model => 'Model $index';
+
+  @override
+  String get name => 'Name $index';
+
+  @override
+  Future<Uint8List> read({required int bufferSize}) {
+    _logger.finest('sane_read()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => Uint8List.fromList([]),
+    );
   }
 
   @override
-  Future<SaneOptionResult<double>> controlFixedOption({
-    required SaneHandle handle,
-    required int index,
-    required SaneAction action,
-    double? value,
-  }) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_controlFixedOption()');
-      return SaneOptionResult(result: value ?? .1, infos: []);
-    });
+  Future<void> start() {
+    _logger.finest('sane_start()');
+    return Future.delayed(const Duration(seconds: 1));
   }
 
   @override
-  Future<SaneOptionResult<int>> controlIntOption({
-    required SaneHandle handle,
-    required int index,
-    required SaneAction action,
-    int? value,
-  }) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_controlIntOption()');
-      return SaneOptionResult(result: value ?? 1, infos: []);
-    });
-  }
+  String get type => 'Type $index';
 
   @override
-  Future<SaneOptionResult<String>> controlStringOption({
-    required SaneHandle handle,
-    required int index,
-    required SaneAction action,
-    String? value,
-  }) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_controlStringOption()');
-      return SaneOptionResult(result: value ?? 'value', infos: []);
-    });
-  }
+  String? get vendor => 'Vendor $index';
 
   @override
-  Future<void> exit() {
-    return Future(() {
-      _logger.finest('sane_exit()');
-    });
-  }
-
-  @override
-  Future<List<SaneOptionDescriptor>> getAllOptionDescriptors(
-    SaneHandle handle,
+  Future<SaneOptionDescriptor> getOptionDescriptor(
+    int index,
   ) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_getAllOptionDescriptors()');
-      return [
+    _logger.finest('sane_getOptionDescriptor()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneOptionDescriptor(
+        index: index,
+        name: 'name',
+        title: 'title',
+        desc: 'desc',
+        type: SaneOptionValueType.int,
+        unit: SaneOptionUnit.none,
+        size: 1,
+        capabilities: [],
+        constraint: null,
+      ),
+    );
+  }
+
+  @override
+  Future<SaneParameters> getParameters() {
+    _logger.finest('sane_getParameters()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneParameters(
+        format: SaneFrameFormat.gray,
+        lastFrame: true,
+        bytesPerLine: 800,
+        pixelsPerLine: 100,
+        lines: 100,
+        depth: 8,
+      ),
+    );
+  }
+
+  @override
+  Future<List<SaneOptionDescriptor>> getAllOptionDescriptors() {
+    _logger.finest('sane_getAllOptionDescriptors()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => [
         SaneOptionDescriptor(
           index: 0,
           name: 'name',
@@ -108,109 +124,68 @@ class SaneDev implements Sane {
           capabilities: [],
           constraint: null,
         ),
-      ];
-    });
+      ],
+    );
   }
 
   @override
-  Future<List<SaneDevice>> getDevices({
-    required bool localOnly,
-  }) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_getDevices()');
-      return [
-        for (var i = 0; i < 3; i++)
-          SaneDevice(
-            name: 'name $i',
-            vendor: 'Vendor$i',
-            model: 'Model$i',
-            type: 'Type$i',
-          ),
-      ];
-    });
-  }
-
-  @override
-  Future<SaneOptionDescriptor> getOptionDescriptor(
-    SaneHandle handle,
+  Future<SaneOptionResult<bool>> controlBoolOption(
     int index,
-  ) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_getOptionDescriptor()');
-      return SaneOptionDescriptor(
-        index: index,
-        name: 'name',
-        title: 'title',
-        desc: 'desc',
-        type: SaneOptionValueType.int,
-        unit: SaneOptionUnit.none,
-        size: 1,
-        capabilities: [],
-        constraint: null,
-      );
-    });
+    SaneAction action, [
+    bool? value,
+  ]) {
+    _logger.finest('sane_controlBoolOption()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneOptionResult(result: value ?? true, infos: []),
+    );
   }
 
   @override
-  Future<SaneParameters> getParameters(SaneHandle handle) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_getParameters()');
-      return SaneParameters(
-        format: SaneFrameFormat.gray,
-        lastFrame: true,
-        bytesPerLine: 800,
-        pixelsPerLine: 100,
-        lines: 100,
-        depth: 8,
-      );
-    });
+  Future<SaneOptionResult<Null>> controlButtonOption(int index) {
+    _logger.finest('sane_controlButtonOption()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneOptionResult(result: null, infos: []),
+    );
   }
 
   @override
-  Future<int> init({
-    AuthCallback? authCallback,
-  }) {
-    return Future(() {
-      _logger.finest('sane_init()');
-      return 1;
-    });
+  Future<SaneOptionResult<double>> controlFixedOption(
+    int index,
+    SaneAction action, [
+    double? value,
+  ]) {
+    _logger.finest('sane_controlFixedOption()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneOptionResult(result: value ?? .1, infos: []),
+    );
   }
 
   @override
-  Future<SaneHandle> open(String deviceName) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_open()');
-      return SaneHandle(deviceName: deviceName);
-    });
+  Future<SaneOptionResult<int>> controlIntOption(
+    int index,
+    SaneAction action, [
+    int? value,
+  ]) {
+    _logger.finest('sane_controlIntOption()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneOptionResult(result: value ?? 1, infos: []),
+    );
   }
 
   @override
-  Future<SaneHandle> openDevice(SaneDevice device) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_openDevice()');
-      return SaneHandle(deviceName: device.name);
-    });
-  }
-
-  @override
-  Future<Uint8List> read(SaneHandle handle, int bufferSize) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_read()');
-      return Uint8List.fromList([]);
-    });
-  }
-
-  @override
-  Future<void> setIOMode(SaneHandle handle, SaneIOMode mode) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_setIOMode()');
-    });
-  }
-
-  @override
-  Future<void> start(SaneHandle handle) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      _logger.finest('sane_start()');
-    });
+  Future<SaneOptionResult<String>> controlStringOption(
+    int index,
+    SaneAction action, [
+    String? value,
+  ]) {
+    _logger.finest('sane_controlStringOption()');
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => SaneOptionResult(result: value ?? 'value', infos: []),
+    );
   }
 }

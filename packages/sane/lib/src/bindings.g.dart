@@ -250,6 +250,17 @@ class LibSane {
           'sane_strstatus');
   late final _sane_strstatus =
       _sane_strstatusPtr.asFunction<SANE_String_Const Function(int)>();
+
+  late final addresses = _SymbolAddresses(this);
+}
+
+class _SymbolAddresses {
+  final LibSane _library;
+
+  _SymbolAddresses(this._library);
+
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(SANE_Handle)>>
+      get sane_close => _library._sane_closePtr;
 }
 
 enum SANE_Status {

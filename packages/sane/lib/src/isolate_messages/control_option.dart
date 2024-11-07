@@ -1,60 +1,47 @@
-import 'package:sane/src/impl/sane_sync.dart';
+import 'package:sane/src/isolate.dart';
 import 'package:sane/src/isolate_messages/interface.dart';
+import 'package:sane/src/sane.dart';
 import 'package:sane/src/structures.dart';
 
 class ControlValueOptionMessage<T>
     implements IsolateMessage<ControlValueOptionResponse<T>> {
-  ControlValueOptionMessage({
-    required this.saneHandle,
+  const ControlValueOptionMessage({
+    required this.deviceName,
     required this.index,
     required this.action,
     this.value,
   });
 
-  final SaneHandle saneHandle;
+  final String deviceName;
   final int index;
   final SaneAction action;
   final T? value;
 
   @override
   Future<ControlValueOptionResponse<T>> handle(Sane sane) async {
+    final device = getDevice(deviceName);
+
     switch (value) {
       case final bool value:
-        return ControlValueOptionResponse<bool>(
-          result: await sane.controlBoolOption(
-            handle: saneHandle,
-            index: index,
-            action: action,
-            value: value,
-          ),
-        ) as ControlValueOptionResponse<T>;
+        final result = await device.controlBoolOption(index, action, value);
+        return ControlValueOptionResponse<bool>(result)
+            as ControlValueOptionResponse<T>;
+
       case final int value:
-        return ControlValueOptionResponse<int>(
-          result: await sane.controlIntOption(
-            handle: saneHandle,
-            index: index,
-            action: action,
-            value: value,
-          ),
-        ) as ControlValueOptionResponse<T>;
+        final result = await device.controlIntOption(index, action, value);
+        return ControlValueOptionResponse<int>(result)
+            as ControlValueOptionResponse<T>;
+
       case final double value:
-        return ControlValueOptionResponse<double>(
-          result: await sane.controlFixedOption(
-            handle: saneHandle,
-            index: index,
-            action: action,
-            value: value,
-          ),
-        ) as ControlValueOptionResponse<T>;
+        final result = await device.controlFixedOption(index, action, value);
+        return ControlValueOptionResponse<double>(result)
+            as ControlValueOptionResponse<T>;
+
       case final String value:
-        return ControlValueOptionResponse<String>(
-          result: await sane.controlStringOption(
-            handle: saneHandle,
-            index: index,
-            action: action,
-            value: value,
-          ),
-        ) as ControlValueOptionResponse<T>;
+        final result = await device.controlStringOption(index, action, value);
+        return ControlValueOptionResponse<String>(result)
+            as ControlValueOptionResponse<T>;
+
       default:
         throw Exception('Invalid value type.');
     }
@@ -62,7 +49,7 @@ class ControlValueOptionMessage<T>
 }
 
 class ControlValueOptionResponse<T> implements IsolateResponse {
-  ControlValueOptionResponse({required this.result});
+  ControlValueOptionResponse(this.result);
 
   final SaneOptionResult<T> result;
 }
