@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
+import 'package:sane/src/extensions.dart';
 import 'package:sane/src/isolate_messages/cancel.dart';
 import 'package:sane/src/isolate_messages/close.dart';
 import 'package:sane/src/isolate_messages/control_button_option.dart';
@@ -18,6 +21,7 @@ import 'package:sane/src/isolate_messages/open.dart';
 import 'package:sane/src/isolate_messages/read.dart';
 import 'package:sane/src/isolate_messages/set_io_mode.dart';
 import 'package:sane/src/isolate_messages/start.dart';
+import 'package:sane/src/logger.dart';
 
 class SaneIsolate implements Sane {
   SaneIsolate({
@@ -38,7 +42,16 @@ class SaneIsolate implements Sane {
         sane: _sane,
       ),
     );
-    _sendPort = await receivePort.first as SendPort;
+
+    final sendPortCompleter = Completer<SendPort>();
+    receivePort.listen((message) {
+      if (message is _SendPortMessage) {
+        sendPortCompleter.complete(message.sendPort);
+      } else if (message is _LogRecordMessage) {
+        logger.redirect(message.record);
+      }
+    });
+    _sendPort = await sendPortCompleter.future;
   }
 
   void kill() {
@@ -292,7 +305,16 @@ class _IsolateEntryPointArgs {
 
 void _isolateEntryPoint(_IsolateEntryPointArgs args) {
   final isolateReceivePort = ReceivePort();
-  args.mainSendPort.send(isolateReceivePort.sendPort);
+  args.mainSendPort.send(
+    _SendPortMessage(isolateReceivePort.sendPort),
+  );
+
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    args.mainSendPort.send(
+      _LogRecordMessage(record),
+    );
+  });
 
   final sane = args.sane;
   isolateReceivePort.cast<_IsolateMessageEnvelope>().listen((envelope) async {
@@ -319,4 +341,14 @@ class _IsolateMessageEnvelope {
 
   final SendPort replyPort;
   final IsolateMessage message;
+}
+
+class _SendPortMessage {
+  _SendPortMessage(this.sendPort);
+  final SendPort sendPort;
+}
+
+class _LogRecordMessage {
+  _LogRecordMessage(this.record);
+  final LogRecord record;
 }
