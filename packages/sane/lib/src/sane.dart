@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import 'package:sane/sane.dart';
-import 'package:sane/src/impl/sane_dev.dart';
+import 'package:sane/src/impl/sane_mock.dart';
 import 'package:sane/src/impl/sane_native.dart';
 import 'package:sane/src/impl/sane_sync.dart';
 
@@ -15,7 +15,7 @@ abstract interface class Sane {
   /// See also:
   ///
   /// - [Sane.sync]
-  factory Sane() => NativeSane();
+  factory Sane([Sane? backingSane]) => NativeSane(backingSane);
 
   /// Instantiates a new synchronous SANE instance.
   factory Sane.sync() => SyncSane();

@@ -1,48 +1,53 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:logging/logging.dart';
+import 'package:meta/meta.dart';
 import 'package:sane/src/exceptions.dart';
+import 'package:sane/src/extensions.dart';
 import 'package:sane/src/isolate_messages/exception.dart';
+import 'package:sane/src/isolate_messages/exit.dart';
 import 'package:sane/src/isolate_messages/interface.dart';
 import 'package:sane/src/sane.dart';
 
+final _logger = Logger('sane.isolate');
+
+@internal
 class SaneIsolate {
   SaneIsolate._(
     this._isolate,
     this._sendPort,
-    this._exitReceivePort,
-  ) : _exited = false {
-    _exitReceivePort.listen((message) {
-      assert(message == null);
-      _exited = true;
-    });
-  }
+  );
 
   final Isolate _isolate;
   final SendPort _sendPort;
-  final ReceivePort _exitReceivePort;
-
-  bool _exited;
-
-  bool get exited => _exited;
 
   static Future<SaneIsolate> spawn(Sane sane) async {
     final receivePort = ReceivePort();
-    final exitReceivePort = ReceivePort();
 
     final isolate = await Isolate.spawn(
       _entryPoint,
       (receivePort.sendPort, sane),
-      onExit: exitReceivePort.sendPort,
+      onExit: receivePort.sendPort,
     );
 
-    final sendPort = await receivePort.first as SendPort;
-    return SaneIsolate._(isolate, sendPort, exitReceivePort);
+    final sendPortCompleter = Completer<SendPort>();
+    receivePort.listen((message) {
+      switch (message) {
+        case SendPort():
+          sendPortCompleter.complete(message);
+        case LogRecord():
+          _logger.redirect(message);
+        case null:
+          receivePort.close();
+      }
+    });
+
+    final sendPort = await sendPortCompleter.future;
+    return SaneIsolate._(isolate, sendPort);
   }
 
-  void kill() {
-    _isolate.kill(priority: Isolate.immediate);
-  }
+  void kill() => _isolate.kill(priority: Isolate.immediate);
 
   Future<T> sendMessage<T extends IsolateResponse>(
     IsolateMessage<T> message,
@@ -75,10 +80,16 @@ typedef _EntryPointArgs = (SendPort sendPort, Sane sane);
 void _entryPoint(_EntryPointArgs args) {
   final (sendPort, sane) = args;
 
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.forEach(sendPort.send);
+
   final receivePort = ReceivePort();
   sendPort.send(receivePort.sendPort);
 
-  receivePort.cast<_IsolateMessageEnvelope>().listen((envelope) async {
+  late StreamSubscription<_IsolateMessageEnvelope> subscription;
+
+  subscription =
+      receivePort.cast<_IsolateMessageEnvelope>().listen((envelope) async {
     final _IsolateMessageEnvelope(:message, :replyPort) = envelope;
 
     IsolateResponse response;
@@ -93,6 +104,10 @@ void _entryPoint(_EntryPointArgs args) {
     }
 
     replyPort.send(response);
+
+    if (message is ExitMessage) {
+      await subscription.cancel();
+    }
   });
 }
 
@@ -108,8 +123,10 @@ class _IsolateMessageEnvelope {
 
 late Map<String, SaneDevice> _devices;
 
+@internal
 SaneDevice getDevice(String name) => _devices[name]!;
 
+@internal
 void setDevices(Iterable<SaneDevice> devices) {
   _devices = {
     for (final device in devices) device.name: device,

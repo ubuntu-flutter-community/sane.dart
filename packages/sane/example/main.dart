@@ -5,7 +5,7 @@ import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
-import 'package:sane/src/impl/sane_dev.dart';
+import 'package:sane/src/impl/sane_mock.dart';
 import 'package:sane/src/impl/sane_native.dart';
 
 void main(List<String> args) async {
@@ -79,4 +79,6 @@ void main(List<String> args) async {
   );
   final rawPixelData = mergeUint8Lists(rawPixelDataList);
   file.writeAsBytesSync(rawPixelData, mode: FileMode.append);
+
+  await sane.dispose();
 }

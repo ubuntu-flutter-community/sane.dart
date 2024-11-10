@@ -1,8 +1,17 @@
+import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
 import 'package:test/test.dart';
 
 void main() {
   late Sane sane;
+
+  setUp(() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      // ignore: avoid_print
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    });
+  });
 
   test('can instantiate', () {
     sane = Sane();
@@ -25,7 +34,7 @@ void main() {
   });
 
   test('can reinstiate with new instance', () {
-    final newSane = Sane();
+    final newSane = Sane(Sane.mock());
     expect(sane, isNot(newSane));
     sane = newSane;
   });

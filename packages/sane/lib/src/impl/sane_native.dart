@@ -66,7 +66,7 @@ class NativeSane implements Sane {
   SaneIsolate? _isolate;
 
   Future<SaneIsolate> _getIsolate() async {
-    if (_isolate?.exited == true || _disposed) throw SaneDisposedError();
+    if (_disposed) throw SaneDisposedError();
     return _isolate ??= await SaneIsolate.spawn(backingSane);
   }
 
@@ -81,17 +81,18 @@ class NativeSane implements Sane {
   Future<void> dispose({bool force = false}) async {
     final isolate = _isolate;
 
-    if (force) {
-      isolate?.kill();
-      return;
-    }
-
     if (_disposed) return;
 
     _disposed = true;
     _instance = null;
 
-    await isolate?.sendMessage(ExitMessage());
+    if (isolate == null) return;
+
+    if (force) {
+      isolate.kill();
+    } else {
+      await isolate.sendMessage(ExitMessage());
+    }
 
     _isolate = null;
   }

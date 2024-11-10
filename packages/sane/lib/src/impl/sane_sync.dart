@@ -393,7 +393,8 @@ class SyncSaneDevice implements SaneDevice, ffi.Finalizable {
   SaneOptionResult<bool> controlBoolOption(
     int index,
     SaneAction action,
-    bool? value,) {
+    bool? value,
+  ) {
     return _controlOption<bool>(
       index: index,
       action: action,
@@ -405,7 +406,8 @@ class SyncSaneDevice implements SaneDevice, ffi.Finalizable {
   SaneOptionResult<int> controlIntOption(
     int index,
     SaneAction action,
-    int? value,) {
+    int? value,
+  ) {
     return _controlOption<int>(
       index: index,
       action: action,
@@ -417,7 +419,8 @@ class SyncSaneDevice implements SaneDevice, ffi.Finalizable {
   SaneOptionResult<double> controlFixedOption(
     int index,
     SaneAction action,
-    double? value,) {
+    double? value,
+  ) {
     return _controlOption<double>(
       index: index,
       action: action,
@@ -429,7 +432,8 @@ class SyncSaneDevice implements SaneDevice, ffi.Finalizable {
   SaneOptionResult<String> controlStringOption(
     int index,
     SaneAction action,
-    String? value,) {
+    String? value,
+  ) {
     return _controlOption<String>(
       index: index,
       action: action,

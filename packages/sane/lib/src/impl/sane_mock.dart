@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
 
-final _logger = Logger('sane.dev');
+final _logger = Logger('sane.mock');
 
 class MockSane implements Sane {
   @override
