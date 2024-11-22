@@ -142,7 +142,7 @@ SaneOptionConstraint? saneConstraintFromNative(
     case SANE_Constraint_Type.CONSTRAINT_STRING_LIST:
       final stringList = <String>[];
       for (var i = 0; constraint.string_list[i] != ffi.nullptr; i++) {
-        final string = dartStringFromSaneString(constraint.string_list[i])!;
+        final string = constraint.string_list[i].toDartString();
         stringList.add(string);
       }
       return SaneOptionConstraintStringList(stringList: stringList);
@@ -156,9 +156,9 @@ SaneOptionDescriptor saneOptionDescriptorFromNative(
 ) {
   return SaneOptionDescriptor(
     index: index,
-    name: dartStringFromSaneString(optionDescriptor.name) ?? '',
-    title: dartStringFromSaneString(optionDescriptor.title) ?? '',
-    desc: dartStringFromSaneString(optionDescriptor.desc) ?? '',
+    name: optionDescriptor.name.toDartString(),
+    title: optionDescriptor.title.toDartString(),
+    desc: optionDescriptor.desc.toDartString(),
     type: saneOptionValueTypeFromNative(optionDescriptor.type),
     unit: saneOptionUnitFromNative(optionDescriptor.unit),
     size: optionDescriptor.size,
@@ -196,17 +196,6 @@ bool dartBoolFromSaneBool(int bool) {
     default:
       throw Exception();
   }
-}
-
-@internal
-String? dartStringFromSaneString(SANE_String_Const stringPointer) {
-  if (stringPointer == ffi.nullptr) return null;
-  return stringPointer.cast<ffi.Utf8>().toDartString();
-}
-
-@Deprecated('Use extension')
-SANE_String_Const saneStringFromDartString(String string) {
-  return string.toSaneString();
 }
 
 @internal

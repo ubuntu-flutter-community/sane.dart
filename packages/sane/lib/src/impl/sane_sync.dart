@@ -28,7 +28,7 @@ class SyncSane implements Sane {
       ffi.Pointer<SANE_Char> username,
       ffi.Pointer<SANE_Char> password,
     ) {
-      final credentials = authCallback!(dartStringFromSaneString(resource)!);
+      final credentials = authCallback!(resource.toDartString());
       for (var i = 0;
           i < credentials.username.length && i < SANE_MAX_USERNAME_LEN;
           i++) {
@@ -368,10 +368,7 @@ class SyncSaneDevice implements SaneDevice, ffi.Finalizable {
             saneFixedToDouble((valuePointer as ffi.Pointer<SANE_Word>).value);
 
       case SaneOptionValueType.string:
-        result = dartStringFromSaneString(
-              valuePointer as ffi.Pointer<SANE_Char>,
-            ) ??
-            '';
+        result = (valuePointer as ffi.Pointer<SANE_Char>).toDartString();
 
       case SaneOptionValueType.button:
         result = null;
